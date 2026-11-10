@@ -31,16 +31,20 @@ from litellm import completion
 
 ### 2. Add business context with a parent span
 
-Wrap your LLM calls to add the context autoinstrumentation can't provide:
+Wrap your LLM calls to add the context autoinstrumentation can't provide, including the agent's input and output messages:
 
 ```python
 from sap_cloud_sdk.core.telemetry import invoke_agent_span
 
 with invoke_agent_span(
     provider="openai", agent_name="SupportBot", conversation_id="conv-123"
-):
+) as span:
+    span.set_attribute("gen_ai.input.messages", ...)
+
     # autoinstrumented LLM call is a child of this span
     response = client.chat.completions.create(...)
+
+    span.set_attribute("gen_ai.output.messages", ...)
 ```
 ---
 
